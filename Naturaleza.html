@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naturaleza Tutunendo</title>
+    <style>
+        :root{
+            --accent:#0b8f6b;
+            --muted:#6b6b6b;
+            --bg:#f7fbf9;
+            --card-bg:#ffffff;
+            --radius:14px;
+            --gutter:18px;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+        }
+        .naturaleza-section{
+            padding:48px 18px;
+            background: linear-gradient(180deg,#f7fbf9 0%, #ffffff 100%);
+            color:#143130;
+        }
+        .container{
+            max-width:1100px;
+            margin:0 auto;
+        }
+        .intro{
+            display:flex;
+            gap:20px;
+            align-items:center;
+            margin-bottom:28px;
+        }
+        .intro h2{font-size:28px;margin:0}
+        .intro p{margin:0;color:var(--muted)}
+
+        /* Grid de tarjetas */
+        .places-grid{
+            display:grid;
+            grid-template-columns:repeat(3,1fr);
+            gap:var(--gutter);
+        }
+        @media (max-width:980px){.places-grid{grid-template-columns:repeat(2,1fr);}}
+        @media (max-width:640px){.places-grid{grid-template-columns:1fr}}
+
+        .place-card{
+            background:var(--card-bg);
+            border-radius:var(--radius);
+            overflow:hidden;
+            box-shadow:0 8px 20px rgba(12,20,18,0.06);
+            transition:transform .25s ease, box-shadow .25s ease;
+            display:flex;
+            flex-direction:column;
+        }
+        .place-card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(12,20,18,0.09)}
+
+        .thumb{
+            position:relative;
+            padding-top:60%; /* aspecto 5:3 */
+            overflow:hidden;
+        }
+        .thumb img{
+            position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;
+            transition:transform .35s ease;
+        }
+        .place-card:hover .thumb img{transform:scale(1.04)}
+
+        .card-body{
+            padding:16px 18px;
+            flex:1;
+            display:flex;
+            flex-direction:column;
+        }
+        .card-body h3{margin:0 0 8px 0;font-size:18px}
+        .card-body p{margin:0 0 12px 0;color:var(--muted);font-size:14px;line-height:1.45}
+        .tags{margin-top:auto;display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+        .tag{background:rgba(11,143,107,0.08);color:var(--accent);padding:6px 10px;border-radius:999px;font-size:12px}
+
+        /* Contenedor de botones para que se alineen bien */
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .card-actions > button {
+            flex: 1;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        /* Estilo del botón de galería */
+        .view-gallery-btn{
+            background: var(--accent);
+            color: white;
+        }
+        .view-gallery-btn:hover {
+            background: #097458;
+        }
+
+        /* --- Estilo del NUEVO botón Añadir Foto --- */
+        .add-photo-btn {
+            background: #f0f4f2; /* Color de fondo claro */
+            color: #143130;
+        }
+        .add-photo-btn:hover {
+            background: #e0e4e2;
+        }
+
+        /* --- Modal lightbox (sin cambios en estilos de modal) --- */
+        .modal{position:fixed;inset:0;background:rgba(5,10,8,0.85);display:none;align-items:center;justify-content:center;padding:28px;z-index:1200}
+        .modal.open{display:flex}
+        
+        /* Contenido del modal */
+        .modal-content{max-width:1100px;width:100%;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 30px 80px rgba(2,6,4,0.6)}
+        .modal-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid #eee;color:#143130}
+        .modal-close{background:none;border:0;font-size:24px;cursor:pointer}
+        
+        /* Contenedor para la imagen y botones de navegación */
+        .modal-body{
+            position:relative;
+            width:100%;
+            height:calc(85vh);
+            overflow:hidden;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background:#000;
+        }
+        .modal-body img{
+            width:auto;
+            height:100%;
+            max-width:100%;
+            object-fit:contain;
+            display:block;
+        }
+
+        /* Estilo de las flechas de navegación */
+        .modal-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            font-size: 28px;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+            z-index: 10; 
+        }
+        .modal-nav-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+        #prev-btn { left: 10px; }
+        #next-btn { right: 10px; }
+
+        footer {
+            background: rgba(0, 77, 64, 0.95);
+            text-align: center;
+            color: #fff;
+            padding: 20px 10px;
+            font-size: 0.95rem;
+            letter-spacing: 0.3px;
+            box-shadow: 0 -3px 10px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <section id="naturaleza-tutunendo" class="naturaleza-section">
+        <div class="container">
+            <div class="intro">
+                <div>
+                    <h2>Naturaleza de Tutunendo</h2>
+                    <p>Los rincones naturales más memorables del río Tutunendo y sus senderos cercanos. ¡Ahora con galerías de fotos navegables!</p>
+                </div>
+            </div>
+
+            <div class="places-grid">
+                <article class="place-card">
+                    <div class="thumb">
+                        <img src="https://lh3.googleusercontent.com/gps-cs-s/AC9h4nq4cLifrAeiFkm_kIvE81ZxWX9QNpTAf-2vj8WyNfnNTPVhZyH1GOVcjxLO3NwTFx-ust7XFZiWmyPPiZKBzyEp_gW983IKfB-9_chCaazPuXXnIKDq_HVdSzy5WunJjusdAYrnLQ=w243-h244-n-k-no-nu" alt="Cascada Sal de Frutas - Tutunendo" data-full="https://lh3.googleusercontent.com/gps-cs-s/AC9h4nq4cLifrAeiFkm_kIvE81ZxWX9QNpTAf-2vj8WyNfnNTPVhZyH1GOVcjxLO3NwTFx-ust7XFZiWmyPPiZKBzyEp_gW983IKfB-9_chCaazPuXXnIKDq_HVdSzy5WunJjusdAYrnLQ=w243-h244-n-k-no-nu">
+                    </div>
+
+                    <div class="gallery-thumbs" style="display:none;" data-name="Cascada Sal de Frutas">
+                        <img src="https://lh3.googleusercontent.com/gps-cs-s/AC9h4nq4cLifrAeiFkm_kIvE81ZxWX9QNpTAf-2vj8WyNfnNTPVhZyH1GOVcjxLO3NwTFx-ust7XFZiWmyPPiZKBzyEp_gW983IKfB-9_chCaazPuXXnIKDq_HVdSzy5WunJjusdAYrnLQ=w243-h244-n-k-no-nu" data-full="https://lh3.googleusercontent.com/gps-cs-s/AC9h4nq4cLifrAeiFkm_kIvE81ZxWX9QNpTAf-2vj8WyNfnNTPVhZyH1GOVcjxLO3NwTFx-ust7XFZiWmyPPiZKBzyEp_gW983IKfB-9_chCaazPuXXnIKDq_HVdSzy5WunJjusdAYrnLQ=w243-h244-n-k-no-nu" alt="Cascada Sal de Frutas">
+                        <img src="https://media-cdn.tripadvisor.com/media/photo-s/1b/8d/e8/58/cascada-sal-de-frutas.jpg" data-full="https://media-cdn.tripadvisor.com/media/photo-s/1b/8d/e8/58/cascada-sal-de-frutas.jpg" alt="Cascada Sal de Frutas">
+                        <img src="https://tubarco.news/wp-content/uploads/2024/11/cascada-sal-de-frutas.jpg" data-full="https://tubarco.news/wp-content/uploads/2024/11/cascada-sal-de-frutas.jpg" alt="Cascada Sal de Frutas">
+                        <img src="https://choco7dias.com/wp-content/uploads/2022/08/tutunendo-sal-frutas.jpg" data-full="https://choco7dias.com/wp-content/uploads/2022/08/tutunendo-sal-frutas.jpg" alt="Cascada Sal de Frutas">
+                        <img src="https://www.tourderios.com.co/images/saldefrutas1.jpg" data-full="https://www.tourderios.com.co/images/saldefrutas1.jpg" alt="Cascada Sal de Frutas">
+                    </div>
+
+                    <div class="card-body">
+                        <h3>Cascada Sal de Frutas</h3>
+                        <p>Una caída de agua ideal para fotos y baños cortos. Su piscina natural tiene tonos verdes y arena clara.</p>
+                        <div class="tags">
+                            <span class="tag">Cascada</span>
+                            <span class="tag">Baños naturales</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="view-gallery-btn" data-gal-index="0">Ver Galería</button>
+                            <button class="add-photo-btn" data-place-name="Cascada Sal de Frutas">Añadir Foto</button>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="place-card">
+                    <div class="thumb">
+                        <img src="https://media-cdn.tripadvisor.com/media/photo-s/1b/8d/e7/54/piedra-del-diablo-principal.jpg" alt="Piedra del Diablo - Tutunendo" data-full="https://media-cdn.tripadvisor.com/media/photo-s/1b/8d/e7/54/piedra-del-diablo-principal.jpg">
+                    </div>
+                    <div class="gallery-thumbs" style="display:none;" data-name="Piedra del Diablo">
+                        <img src="https://media-cdn.tripadvisor.com/media/photo-s/1b/8d/e7/54/piedra-del-diablo-principal.jpg" data-full="https://media-cdn.tripadvisor.com/media/photo-s/1b/8d/e7/54/piedra-del-diablo-principal.jpg" alt="Piedra del Diablo">
+                        <img src="https://media-cdn.tripadvisor.com/media/photo-s/1b/8d/e7/51/piedra-del-diablo-principal.jpg" data-full="https://media-cdn.tripadvisor.com/media/photo-s/1b/8d/e7/51/piedra-del-diablo-principal.jpg" alt="Piedra del Diablo">
+                        <img src="https://www.tourderios.com.co/images/sendero/senderotutunendo1.jpg" data-full="https://www.tourderios.com.co/images/sendero/senderotutunendo1.jpg" alt="Piedra del Diablo">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT4-jR3Hq3ws7EH-FrP3iAL9mmCdofUbBf8BA&s" data-full="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT4-jR3Hq3ws7EH-FrP3iAL9mmCdofUbBf8BA&s" alt="Piedra del Diablo">
+                        <img src="https://www.triviantes.com/wp-content/uploads/2023/06/guia-turistica-del-rio-tutunendo-3.jpg" data-full="https://www.triviantes.com/wp-content/uploads/2023/06/guia-turistica-del-rio-tutunendo-3.jpg" alt="Piedra del Diablo">
+                    </div>
+                    <div class="card-body">
+                        <h3>Piedra del Diablo</h3>
+                        <p>Una roca emblemática en medio del río, usada por los visitantes para tomar fotografías dramáticas.</p>
+                        <div class="tags">
+                            <span class="tag">Foto icónica</span>
+                            <span class="tag">Aventura</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="view-gallery-btn" data-gal-index="5">Ver Galería</button>
+                            <button class="add-photo-btn" data-place-name="Piedra del Diablo">Añadir Foto</button>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="place-card">
+                    <div class="thumb">
+                        <img src="https://elafrobogotano.com.co/wp-content/uploads/2021/01/image001.png" alt="Sendero ecoturístico - Tutunendo" data-full="https://elafrobogotano.com.co/wp-content/uploads/2021/01/image001.png">
+                    </div>
+                    <div class="gallery-thumbs" style="display:none;" data-name="Sendero Ecoturístico">
+                        <img src="https://elafrobogotano.com.co/wp-content/uploads/2021/01/image001.png" data-full="https://elafrobogotano.com.co/wp-content/uploads/2021/01/image001.png" alt="Sendero Ecoturístico">
+                        <img src="https://www.quibdo-choco.gov.co/NuestraAlcaldia/SaladePrensa/PublishingImages/483087716_18302506141238125_3529763494037104090_n.jpg" data-full="https://www.quibdo-choco.gov.co/NuestraAlcaldia/SaladePrensa/PublishingImages/483087716_18302506141238125_3529763494037104090_n.jpg" alt="Sendero Ecoturístico">
+                        <img src="https://caracol.com.co/resizer/v2/FEN7X4PSMBOR7CUN2TPET5VI5M.jpg?auth=d48f2ba0a279ca1fcf011861a2acee11be065d693f5ba9e0253b23902a370aea&width=650&height=488&quality=70&smart=true" data-full="https://caracol.com.co/resizer/v2/FEN7X4PSMBOR7CUN2TPET5VI5M.jpg?auth=d48f2ba0a279ca1fcf011861a2acee11be065d693f5ba9e0253b23902a370aea&width=650&height=488&quality=70&smart=true" alt="Sendero Ecoturístico">
+                        <img src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1c/0f/e3/22/img-20200920-150321-hdr.jpg?w=800&h=-1&s=1" data-full="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1c/0f/e3/22/img-20200920-150321-hdr.jpg?w=800&h=-1&s=1" alt="Sendero Ecoturístico">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgH0rcn9y3mH9dNEQr44kkpXMZp8voRG9f7Q&s" data-full="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgH0rcn9y3mH9dNEQr44kkpXMZp8voRG9f7Q&s" alt="Sendero Ecoturístico">
+                    </div>
+                    <div class="card-body">
+                        <h3>Sendero Ecoturístico</h3>
+                        <p>Pasarelas de madera que recorren la ribera y ofrecen miradores.</p>
+                        <div class="tags">
+                            <span class="tag">Sendero</span>
+                            <span class="tag">Miradores</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="view-gallery-btn" data-gal-index="5">Ver Galería</button>
+                            <button class="add-photo-btn" data-place-name="Sendero Ecoturístico">Añadir Foto</button>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="place-card">
+                    <div class="thumb">
+                        <img src="https://www.triviantes.com/wp-content/uploads/2023/06/guia-turistica-del-rio-tutunendo-1.jpg" alt="Balnearios naturales - Tutunendo" data-full="https://www.triviantes.com/wp-content/uploads/2023/06/guia-turistica-del-rio-tutunendo-1.jpg">
+                    </div>
+                    <div class="gallery-thumbs" style="display:none;" data-name="Balnearios Naturales">
+                        <img src="https://www.triviantes.com/wp-content/uploads/2023/06/guia-turistica-del-rio-tutunendo-1.jpg" data-full="https://www.triviantes.com/wp-content/uploads/2023/06/guia-turistica-del-rio-tutunendo-1.jpg" alt="Balneario Natural">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRD2SUsA_IX8UmC7bxoj7gQo6bFZtIqjgsuCg&s" data-full="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRD2SUsA_IX8UmC7bxoj7gQo6bFZtIqjgsuCg&s" alt="Balneario Natural">
+                        <img src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1b/8d/e8/d0/chaparraido-caida-de.jpg?w=1200&h=1200&s=1" data-full="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1b/8d/e8/d0/chaparraido-caida-de.jpg?w=1200&h=1200&s=1" alt="Balneario Natural">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCTe5ERWI02-QKtoRljUcfWfAF0WpiS0ilmg-0NTKHQPaF2K0JXoQDyQj3ywwImACQqjQ&usqp=CAU" data-full="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCTe5ERWI02-QKtoRljUcfWfAF0WpiS0ilmg-0NTKHQPaF2K0JXoQDyQj3ywwImACQqjQ&usqp=CAU" alt="Balneario Natural">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSpRhWFBXfaQUU76mf3pLDjt2_VurYlU_FQLRpYly17EbMljSwCILvWXB1KJF23SZyvaks&usqp=CAU" data-full="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSpRhWFBXfaQUU76mf3pLDjt2_VurYlU_FQLRpYly17EbMljSwCILvWXB1KJF23SZyvaks&usqp=CAU" alt="Balneario Natural">
+                         
+                    </div>
+                    <div class="card-body">
+                        <h3>Balnearios Naturales</h3>
+                        <p>Pequeñas pozas y zonas de descanso a lo largo del río.</p>
+                        <div class="tags">
+                            <span class="tag">Relax</span>
+                            <span class="tag">Familia</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="view-gallery-btn" data-gal-index="5">Ver Galería</button>
+                            <button class="add-photo-btn" data-place-name="Balnearios Naturales">Añadir Foto</button>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="place-card">
+                    <div class="thumb">
+                        <img src="https://estaticos.elcolombiano.com/binrepository/780x585/0c10/780d565/none/11101/UVMP/rio-tutunendo-foto-santiago-castillo_44278097_20240127150237.jpg" alt="Bosque tropical - Tutunendo" data-full="https://estaticos.elcolombiano.com/binrepository/780x585/0c10/780d565/none/11101/UVMP/rio-tutunendo-foto-santiago-castillo_44278097_20240127150237.jpg">
+                    </div>
+                    <div class="gallery-thumbs" style="display:none;" data-name="Bosque Tropical">
+                        <img src="https://estaticos.elcolombiano.com/binrepository/780x585/0c10/780d565/none/11101/UVMP/rio-tutunendo-foto-santiago-castillo_44278097_20240127150237.jpg" data-full="https://estaticos.elcolombiano.com/binrepository/780x585/0c10/780d565/none/11101/UVMP/rio-tutunendo-foto-santiago-castillo_44278097_20240127150237.jpg" alt="Bosque Tropical">
+                        <img src="https://mindtrip.ai/cdn-cgi/image/format=webp,w=720/https://iorigin.mindtrip.ai/attractions/8c41/ffb5/c559/b0ba/d879/f0a4/c2b7/c017" data-full="https://mindtrip.ai/cdn-cgi/image/format=webp,w=720/https://iorigin.mindtrip.ai/attractions/8c41/ffb5/c559/b0ba/d879/f0a4/c2b7/c017" alt="Bosque Tropical">
+                        <img src="https://s2.wklcdn.com/image_319/9595055/158570300/99454508.400x300.jpg" data-full="https://s2.wklcdn.com/image_319/9595055/158570300/99454508.400x300.jpg" alt="Bosque Tropical">
+                        <img src="https://www.quibdo-choco.gov.co/NuestraAlcaldia/SaladePrensa/PublishingImages/Paginas/Tutunendo-contin%C3%BAa-consolid%C3%A1ndose-como-un-gran-destino-tur%C3%ADstico-de-Quibd%C3%B3/483021069_18302506189238125_6591780067981554020_n.jpg" data-full="https://www.quibdo-choco.gov.co/NuestraAlcaldia/SaladePrensa/PublishingImages/Paginas/Tutunendo-contin%C3%BAa-consolid%C3%A1ndose-como-un-gran-destino-tur%C3%ADstico-de-Quibd%C3%B3/483021069_18302506189238125_6591780067981554020_n.jpg" alt="Bosque Tropical">
+                        <img src="https://media-cdn.tripadvisor.com/media/photo-s/1b/8d/e7/9d/playa-rolando-una-de.jpg" data-full="https://media-cdn.tripadvisor.com/media/photo-s/1b/8d/e7/9d/playa-rolando-una-de.jpg" alt="Bosque Tropical">
+
+                    </div>
+                    <div class="card-body">
+                        <h3>Bosque Tropical</h3>
+                        <p>Densa vegetación y árboles altos que crean fondos verdes intensos.</p>
+                        <div class="tags">
+                            <span class="tag">Biodiversidad</span>
+                            <span class="tag">Macro</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="view-gallery-btn" data-gal-index="5">Ver Galería</button>
+                            <button class="add-photo-btn" data-place-name="Bosque Tropical">Añadir Foto</button>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="place-card">
+                    <div class="thumb">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKov7RFkqvlOESKqQ4zscwBPb_Mp9l6nPwhA&s" alt="Mirador y atardeceres - Tutunendo" data-full="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKov7RFkqvlOESKqQ4zscwBPb_Mp9l6nPwhA&s">
+                    </div>
+                    <div class="gallery-thumbs" style="display:none;" data-name="Mirador y Atardeceres">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKov7RFkqvlOESKqQ4zscwBPb_Mp9l6nPwhA&s" data-full="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKov7RFkqvlOESKqQ4zscwBPb_Mp9l6nPwhA&s" alt="Atardecer sobre el río">
+                        <img src="https://clasificadosdelchoco.co/oc-content/uploads/0/266.jpg" data-full="https://clasificadosdelchoco.co/oc-content/uploads/0/266.jpg" alt="Cabaña Casa Real">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7aKCgb3NIZaHwlvfvq087YLbNmo1wWj9aNDcgrYPGx0UxNMMRafGj_B9tdbRc_YUd1mA&usqp=CAU" data-full="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7aKCgb3NIZaHwlvfvq087YLbNmo1wWj9aNDcgrYPGx0UxNMMRafGj_B9tdbRc_YUd1mA&usqp=CAU" alt="Paraiso verde">
+                        <img src="https://a0.muscache.com/im/pictures/hosting/Hosting-1252327050879435249/original/5e765985-8604-4e2a-b6a1-a4f24342e662.jpeg" data-full="https://a0.muscache.com/im/pictures/hosting/Hosting-1252327050879435249/original/5e765985-8604-4e2a-b6a1-a4f24342e662.jpeg" alt="Alquiler Airbn">
+                        <img src="https://cf.bstatic.com/xdata/images/hotel/max1024x768/483110061.jpg?k=df5889e44aa726177ceb6f33295d133055abbacd78e442aa524fba2aa076508e&o=&hp=1" data-full="https://cf.bstatic.com/xdata/images/hotel/max1024x768/483110061.jpg?k=df5889e44aa726177ceb6f33295d133055abbacd78e442aa524fba2aa076508e&o=&hp=1" alt="Etnias Hotel tematico">
+
+                    </div>
+                    <div class="card-body">
+                        <h3>Hospedajes y Cabañas Tutunendo</h3>
+                        <p>Puntos de descanso que ofrecen buena comodidad y buen trato.</p>
+                        <div class="tags">
+                            <span class="tag">Atardecer</span>
+                            <span class="tag">Paisaje</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="view-gallery-btn" data-gal-index="5">Ver Galería</button>
+                            <button class="add-photo-btn" data-place-name="Mirador y Atardeceres">Añadir Foto</button>
+                        </div>
+                    </div>
+                </article>
+
+            </div>
+        </div>
+        
+        <div id="modal" class="modal" aria-hidden="true">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <strong id="modal-title">Foto</strong>
+                    <button id="modal-close" class="modal-close" aria-label="Cerrar">✕</button>
+                </div>
+                <div class="modal-body">
+                    <img id="modal-img" src="" alt="Imagen ampliada">
+                </div>
+            </div>
+        </div>
+        
+        <script>
+        (function(){
+            const modal = document.getElementById('modal');
+            const modalImg = document.getElementById('modal-img');
+            const modalTitle = document.getElementById('modal-title');
+            const closeBtn = document.getElementById('modal-close');
+            const placeCards = document.querySelectorAll('.place-card');
+            const addPhotoBtns = document.querySelectorAll('.add-photo-btn'); // NUEVO: Selecciona todos los botones de añadir foto
+
+            // --- 1. CREACIÓN Y POSICIONAMIENTO DE LOS BOTONES DE NAVEGACIÓN ---
+            const nextBtn = document.createElement('button');
+            const prevBtn = document.createElement('button');
+            nextBtn.id = 'next-btn';
+            prevBtn.id = 'prev-btn';
+            nextBtn.textContent = '▶';
+            prevBtn.textContent = '◀';
+
+            [nextBtn, prevBtn].forEach(btn => {
+                btn.classList.add('modal-nav-btn');
+            });
+            
+            modal.querySelector('.modal-body').append(prevBtn, nextBtn);
+
+            // --- 2. RECOLECTAR TODAS LAS GALERÍAS Y ASIGNAR EVENTOS AL BOTÓN DE GALERÍA ---
+            const galleries = [];
+            placeCards.forEach((card, galIndex) => {
+                
+                const thumbContainer = card.querySelector('.gallery-thumbs');
+                let images = [];
+                
+                // Recolectar imágenes
+                if (thumbContainer) {
+                    const thumbImages = Array.from(thumbContainer.querySelectorAll('img'));
+                    images = thumbImages.map(img => ({
+                        full: img.dataset.full || img.src,
+                        alt: img.alt || thumbContainer.dataset.name || 'Foto Tutunendo'
+                    }));
+                } else {
+                    const img = card.querySelector('.thumb img');
+                    images = [{
+                        full: img.dataset.full || img.src,
+                        alt: img.alt || 'Foto Tutunendo'
+                    }];
+                }
+
+                galleries.push(images);
+
+                // Configurar botón de galería
+                const galleryBtn = card.querySelector('.view-gallery-btn');
+                const photoCount = images.length;
+                galleryBtn.textContent = (photoCount > 1) ? `Ver Galería (${photoCount} Fotos)` : "Ver Foto"; 
+                
+                galleryBtn.addEventListener('click', (e) => {
+                    e.stopPropagation(); 
+                    openGallery(galIndex, 0); 
+                });
+
+                // El evento de clic en la imagen principal se mantiene
+                const mainThumb = card.querySelector('.thumb img');
+                mainThumb.style.cursor = 'pointer'; 
+                mainThumb.addEventListener('click', () => {
+                    openGallery(galIndex, 0); 
+                });
+            });
+
+            // --- NUEVO: ASIGNAR EVENTO A LOS BOTONES DE AÑADIR FOTO ---
+            addPhotoBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const placeName = btn.dataset.placeName;
+                    alert(`Función simulada: Se abriría un diálogo para subir un archivo para "${placeName}".\n\n(Nota: La subida de archivos real requiere un servidor y código backend.)`);
+                });
+            });
+
+            let currentGallery = [];
+            let currentIndex = 0;
+
+            // --- 3. FUNCIONES DE LA GALERÍA (Sin Cambios) ---
+
+            function openGallery(galIndex, imgIndex){
+                currentGallery = galleries[galIndex];
+                currentIndex = imgIndex;
+                showImage();
+                
+                const isSingleImage = currentGallery.length <= 1;
+                nextBtn.style.display = isSingleImage ? 'none' : 'block';
+                prevBtn.style.display = isSingleImage ? 'none' : 'block';
+                
+                modal.classList.add('open');
+                modal.setAttribute('aria-hidden','false');
+            }
+
+            function showImage(){
+                const item = currentGallery[currentIndex];
+                modalImg.src = item.full;
+                modalImg.alt = item.alt;
+                modalTitle.textContent = item.alt; 
+            }
+
+            // --- 4. DARLE VIDA A LOS BOTONES DE NAVEGACIÓN Y CERRAR (Sin Cambios) ---
+
+            // Botón Siguiente
+            nextBtn.addEventListener('click', () => {
+                currentIndex = (currentIndex + 1) % currentGallery.length;
+                showImage();
+            });
+            
+            // Botón Anterior
+            prevBtn.addEventListener('click', () => {
+                currentIndex = (currentIndex - 1 + currentGallery.length) % currentGallery.length;
+                showImage();
+            });
+
+            // Eventos para cerrar y navegar
+            closeBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', e => { if(e.target === modal) closeModal(); });
+            window.addEventListener('keydown', e => {
+                if(e.key === 'Escape') closeModal();
+                if(e.key === 'ArrowRight' && currentGallery.length > 1) nextBtn.click();
+                if(e.key === 'ArrowLeft' && currentGallery.length > 1) prevBtn.click();
+            });
+
+            function closeModal(){
+                modal.classList.remove('open');
+                modal.setAttribute('aria-hidden','true');
+                modalImg.src = '';
+            }
+        })();
+        </script>
+    </section>
+    <footer>
+        🌴 Tutunendo Chocó © 2025 | Turismo, Cultura y Naturaleza. Todo sobre nuestra rica y bonita tierra.
+    </footer>
+</body>
+</html>

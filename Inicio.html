@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inicio Tutunendo</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html, body{height:100%; font-family:'Arial', sans-serif; scroll-behavior: smooth;}
+  
+  /* Video de fondo */
+  #bgVideo{
+    position: fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    z-index:-1;
+  }
+  .overlay{
+    position: fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background: rgba(0,0,0,0.4);
+    z-index:0;
+  }
+
+  /* Contenedor principal */
+  .inicio{
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    color:white;
+    z-index:1;
+    position: relative;
+  }
+  .inicio h1{
+    font-size:4rem;
+    margin-bottom:20px;
+    animation: fadeInDown 2s ease forwards;
+  }
+  .inicio p{
+    font-size:1.5rem;
+    margin-bottom:40px;
+    max-width:800px;
+    animation: fadeInUp 2s ease forwards;
+  }
+  .btn-explorar{
+    padding:15px 40px;
+    font-size:1.2rem;
+    border:none;
+    border-radius:30px;
+    background-color:#ffeb3b;
+    color:#004d40;
+    cursor:pointer;
+    transition: all 0.3s;
+  }
+  .btn-explorar:hover{
+    transform: scale(1.1);
+    background-color:#fdd835;
+  }
+
+  /* Animaciones */
+  @keyframes fadeInDown{
+    from {opacity:0; transform:translateY(-30px);}
+    to {opacity:1; transform:translateY(0);}
+  }
+  @keyframes fadeInUp{
+    from {opacity:0; transform:translateY(30px);}
+    to {opacity:1; transform:translateY(0);}
+  }
+
+  /* Secciones dinámicas */
+  section{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:2rem;
+    color:white;
+    text-shadow:1px 1px 5px black;
+    background-attachment:fixed;
+    background-size:cover;
+    background-position:center;
+  }
+  #Naturaleza{ background-image:url('https://choco7dias.com/wp-content/uploads/2020/11/tutunendo-piedra-diablo-quibdo-choco.jpg'); }
+  #Atractivos{ background-image:url('https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1b/8d/e8/d1/chaparraido-caida-de.jpg?w=900&h=-1&s=1'); }
+  #Ruta{ background-image:url('https://www.elnuevosiglo.com.co/sites/default/files/2021-01/02lfotopositivo-Enero18.jpg'); }
+
+  /* Footer */
+  footer{
+    background:#004d40;
+    color:white;
+    text-align:center;
+    padding:15px;
+    font-size:0.9rem;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Video de fondo -->
+  <video autoplay muted loop id="bgVideo">
+    <source src="C:\Users\Aprendiz\Downloads\WhatsApp Video 2025-10-07 at 2.57.43 PM.mp4" type="video/mp4">
+    Tu navegador no soporta video.
+  </video>
+  <div class="overlay"></div>
+
+  <!-- Pantalla inicial -->
+  <div class="inicio">
+    <h1>Bienvenido, Tutunendo Chocó</h1>
+    <p>¡Tienes que explorar Tutunendo! Es un paraíso natural cerca de Quibdó, con ríos cristalinos y una selva exuberante. ¡No te lo pierdas!</p>
+    <button class="btn-explorar" onclick="document.getElementById('Naturaleza').scrollIntoView()">Explora el Chocó</button>
+  </div>
+
+  <!-- Secciones -->
+  <section id="Naturaleza">Naturaleza: Conoce los rios, cultura y de más de Tutunendo.</section>
+  <section id="Atractivos">Atractivos: Aventuras y conexiones únicas con la naturaleza.</section>
+  <section id="Ruta">¿Cómo llegar?: Ruta más rapida y viable desde Quibdó-Chocó.</section>
+
+  <footer>🌴 Tutunendo Chocó © 2025 | Turismo, Cultura y Naturaleza</footer>
+
+</body>
+</html>

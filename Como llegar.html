@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mapa interactivo - Tutunendo Chocó</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    html, body { height: 100%; margin: 0; padding: 0; }
+    #map { height: 100%; width: 100%; }
+
+    .search-box {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 8px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+      width: 300px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .suggestions {
+      margin-top: 4px;
+      max-height: 150px;
+      overflow-y: auto;
+      background: white;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      display: none;
+    }
+
+    .suggestions div {
+      padding: 6px 8px;
+      cursor: pointer;
+    }
+
+    .suggestions div:hover { background-color: #f0f0f0; }
+
+    .search-box button {
+      margin-top: 6px;
+      width: 100%;
+      padding: 8px;
+      border: none;
+      background-color: #0078ff;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .search-box button:hover { background-color: #005fd1; }
+
+    /* 🔘 Contenedor general de botones */
+    .btn-container {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 1000;
+    }
+
+    /* Estilo general de los botones */
+    .map-btn {
+      background: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 500;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .map-btn:hover {
+      background-color: #0078ff;
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    /* Iconos */
+    .map-btn span {
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <div class="search-box">
+    <input type="text" id="search" placeholder="Buscar lugares o direcciones...">
+    <div id="suggestions" class="suggestions"></div>
+    <button id="searchBtn">🔍 Buscar</button>
+  </div>
+
+  <!-- ✅ Botones bien separados -->
+  <div class="btn-container">
+    <button class="map-btn" id="layerBtn"><span>🗺️</span> Satélite</button>
+    <button class="map-btn" id="locateBtn"><span>📍</span> Mi ubicación</button>
+    <button class="map-btn" id="routeBtn"><span>🧭</span> Ver ruta</button>
+  </div>
+
+  <script>
+  const map = L.map('map').setView([5.7, -76.65], 8);
+
+  const calle = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap contributors'
+  });
+  const satelite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: '© Esri, Maxar, Earthstar Geographics'
+  });
+  calle.addTo(map);
+
+  let marcador;
+  let capaActual = "calle";
+  let destino = null;
+  let ruta = null;
+  let ubicacionActual = null;
+
+  // 🔘 Alternar vista satélite
+  document.getElementById('layerBtn').addEventListener('click', () => {
+    if (capaActual === "calle") {
+      map.removeLayer(calle);
+      satelite.addTo(map);
+      capaActual = "satelite";
+      document.getElementById('layerBtn').innerHTML = "<span>🛰️</span> Calle";
+    } else {
+      map.removeLayer(satelite);
+      calle.addTo(map);
+      capaActual = "calle";
+      document.getElementById('layerBtn').innerHTML = "<span>🗺️</span> Satélite";
+    }
+  });
+
+  // 🧠 Función para buscar lugares en OpenStreetMap
+  async function buscarUbicacion(texto) {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=8&q=${encodeURIComponent(texto)}`;
+    const res = await fetch(url);
+    return await res.json();
+  }
+
+  // 📍 Mostrar resultados en mapa
+  async function realizarBusqueda() {
+    const query = document.getElementById('search').value.trim();
+    if (!query) return alert("Escribe algo para buscar.");
+
+    const resultados = await buscarUbicacion(query);
+    if (!resultados.length) return alert("No se encontró ningún lugar.");
+
+    const lugar = resultados[0];
+    const lat = parseFloat(lugar.lat);
+    const lon = parseFloat(lugar.lon);
+    destino = [lat, lon];
+
+    map.setView(destino, 14);
+    if (marcador) marcador.remove();
+
+    marcador = L.marker(destino).addTo(map)
+      .bindPopup(`<b>${lugar.display_name}</b>`)
+      .openPopup();
+
+    document.getElementById('suggestions').style.display = 'none';
+  }
+
+  // 🎯 Buscar con sugerencias inteligentes
+  const input = document.getElementById('search');
+  const suggestionsBox = document.getElementById('suggestions');
+
+  // ⚙️ Debounce: evita hacer muchas consultas seguidas
+  function debounce(fn, delay) {
+    let timer;
+    return (...args) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn(...args), delay);
+    };
+  }
+
+  // 🧠 Función de autocompletado mejorado
+  const mostrarSugerencias = debounce(async () => {
+    const q = input.value.trim();
+    if (q.length < 2) {
+      suggestionsBox.style.display = 'none';
+      return;
+    }
+
+    const resultados = await buscarUbicacion(q);
+    suggestionsBox.innerHTML = "";
+
+    if (!resultados.length) {
+      suggestionsBox.innerHTML = `<div style="color:#888;padding:6px;">Sin resultados</div>`;
+      suggestionsBox.style.display = 'block';
+      return;
+    }
+
+    resultados.slice(0, 6).forEach(r => {
+      const div = document.createElement('div');
+      const nombre = r.display_name.split(",")[0];
+      const ciudad = r.address.city || r.address.town || r.address.village || "";
+      const pais = r.address.country || "";
+
+      div.innerHTML = `<b>${nombre}</b><br><small>${ciudad ? ciudad + ', ' : ''}${pais}</small>`;
+      div.style.borderBottom = "1px solid #eee";
+
+      div.addEventListener('click', () => {
+        input.value = nombre;
+        suggestionsBox.style.display = 'none';
+        const lat = parseFloat(r.lat), lon = parseFloat(r.lon);
+        destino = [lat, lon];
+        map.setView(destino, 14);
+        if (marcador) marcador.remove();
+        marcador = L.marker(destino).addTo(map)
+          .bindPopup(`<b>${r.display_name}</b>`)
+          .openPopup();
+      });
+      suggestionsBox.appendChild(div);
+    });
+
+    suggestionsBox.style.display = 'block';
+  }, 400); // medio segundo entre tecleo
+
+  input.addEventListener('input', mostrarSugerencias);
+  document.getElementById('searchBtn').addEventListener('click', realizarBusqueda);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') realizarBusqueda(); });
+
+  // 📍 Mi ubicación
+  document.getElementById('locateBtn').addEventListener('click', () => {
+    map.locate({ setView: true, maxZoom: 16, enableHighAccuracy: true });
+  });
+
+  map.on('locationfound', (e) => {
+    ubicacionActual = [e.latitude, e.longitude];
+    if (marcador) marcador.remove();
+    marcador = L.marker(ubicacionActual).addTo(map)
+      .bindPopup('📍 Tu ubicación actual')
+      .openPopup();
+  });
+
+  map.on('locationerror', () => {
+    alert("No se pudo obtener tu ubicación. Activa el GPS o permisos del navegador.");
+  });
+
+  // 🚗 Ver ruta
+  document.getElementById('routeBtn').addEventListener('click', async () => {
+    if (!destino) return alert("Primero busca un destino.");
+    if (!ubicacionActual) return alert("Primero obtén tu ubicación actual.");
+
+    const url = `https://router.project-osrm.org/route/v1/driving/${ubicacionActual[1]},${ubicacionActual[0]};${destino[1]},${destino[0]}?overview=full&geometries=geojson`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (ruta) map.removeLayer(ruta);
+    const routeCoords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
+    ruta = L.polyline(routeCoords, { color: 'blue', weight: 5 }).addTo(map);
+    map.fitBounds(ruta.getBounds());
+  });
+</script>
+
+</body>
+</html>

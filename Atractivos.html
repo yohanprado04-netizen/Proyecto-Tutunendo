@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gastronomía de Tutunendo | Sabores del Chocó</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* -------------------------------------- */
+        /* 1. VARIABLES GLOBALES & RESET          */
+        /* -------------------------------------- */
+        :root{
+            --accent: #0b8f6b;      /* VERDE PRINCIPAL (Chocó) */
+            --accent-dark: #097458; /* Hover de Botón */
+            --text-primary: #143130;
+            --text-muted: #6b6b6b;
+            --bg-light: #f7fbf9;
+            --bg-card: #ffffff;
+            --bg-footer: rgba(0, 77, 64, 0.95);
+            --radius: 14px;
+            --gutter: 20px;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        
+        body {
+            margin: 0;
+            background: var(--bg-light);
+            color: var(--text-primary);
+        }
+        
+        /* -------------------------------------- */
+        /* 2. BANNER & HEADER                     */
+        /* -------------------------------------- */
+        header.gastro-banner {
+            width: 100%;
+            height: 320px;
+            /* Se recomienda usar una imagen alojada en un CDN para mayor fiabilidad, o localmente */
+            background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0tNlK9Xp80Z-6hK3n5Uq2c9wT7_A7u-u1fA&s') center/cover no-repeat;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+        header.gastro-banner::after {
+            content:'';
+            position:absolute;
+            inset:0;
+            /* Capa semi-transparente para mejorar contraste del texto */
+            background:rgba(11,143,107,0.55); 
+            z-index: 0;
+        }
+        header.gastro-banner > * {
+            position: relative; /* Asegura que el texto esté sobre el overlay */
+            z-index: 1;
+        }
+        header.gastro-banner h1 {
+            font-size: clamp(2.5rem, 5vw, 3.5rem); /* Fuente escalable */
+            margin: 0;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+        }
+        header.gastro-banner p {
+            font-size: 1.2rem;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+
+        /* -------------------------------------- */
+        /* 3. SECCIONES Y CONTENEDOR              */
+        /* -------------------------------------- */
+        .gastronomia-section {
+            padding: 50px var(--gutter);
+        }
+        .container{
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .intro{
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        .intro h2{
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: var(--accent-dark);
+        }
+        .intro p{
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+        
+        /* -------------------------------------- */
+        /* 4. GRID DE TARJETAS                    */
+        /* -------------------------------------- */
+        .dishes-grid{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Mejor grid adaptable */
+            gap: var(--gutter);
+        }
+
+        .dish-card{
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(12,20,18,0.08);
+            transition: transform .3s ease, box-shadow .3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .dish-card:hover{
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(12,20,18,0.12);
+        }
+
+        .thumb{
+            position: relative;
+            padding-top: 60%; /* Ratio 5:3 para las imágenes */
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .thumb img{
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform .35s ease;
+        }
+        .dish-card:hover .thumb img{
+            transform: scale(1.05);
+        }
+
+        .card-body{
+            padding: 18px 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-body h3{
+            margin: 0 0 10px 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent-dark);
+        }
+        .card-body p{
+            margin: 0 0 16px 0;
+            color: var(--text-muted);
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        /* Tags */
+        .tags{
+            margin-top: auto;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .tag{
+            background: rgba(11,143,107,0.1); 
+            color: var(--accent-dark);
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        /* Contenedor y estilos de botones de acción */
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .card-actions > button {
+            flex: 1;
+            padding: 12px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.1s ease;
+        }
+        .card-actions > button:active {
+            transform: scale(0.98);
+        }
+
+        /* Botón Ver Galería: VERDE PRINCIPAL */
+        .view-gallery-btn{
+            background: var(--accent);
+            color: white;
+        }
+        .view-gallery-btn:hover {
+            background: var(--accent-dark); 
+        }
+
+        /* Botón Añadir Foto: NEUTRO */
+        .add-photo-btn {
+            background: #e9eceb;
+            color: var(--text-primary);
+        }
+        .add-photo-btn:hover {
+            background: #dadede;
+        }
+
+        /* Elemento de carga dinámica (oculto en esta versión estática) */
+        .load-more-container {
+            display: none; 
+            text-align: center;
+            margin-top: 40px;
+        }
+        
+        /* -------------------------------------- */
+        /* 5. MODAL (LIGHTBOX)                    */
+        /* -------------------------------------- */
+        .modal{
+            position:fixed;
+            inset:0;
+            background:rgba(5,10,8,0.95);
+            display:none;
+            align-items:center;
+            justify-content:center;
+            padding:var(--gutter);
+            z-index:1200;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .modal.open{
+            display:flex;
+            opacity: 1;
+        }
+
+        .modal-content{
+            max-width: 1200px;
+            width: 100%;
+            height: 90vh; /* Se usa la altura de la ventana para mejor ajuste */
+            background: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(2,6,4,0.6);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 20px;
+            border-bottom: 1px solid #eee;
+            color: var(--text-primary);
+            flex-shrink: 0; /* No se encoge */
+        }
+        .modal-close{
+            background: none;
+            border: 0;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--text-muted);
+            line-height: 1;
+        }
+
+        .modal-body{
+            position: relative;
+            flex-grow: 1; /* Ocupa el espacio restante */
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+        }
+
+        .modal-body img{
+            width: auto;
+            height: 100%;
+            max-width: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .modal-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: none;
+            font-size: 30px;
+            padding: 10px 18px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.2s ease, opacity 0.3s;
+            z-index: 10; 
+            line-height: 1;
+        }
+        .modal-nav-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+        #prev-btn { left: 15px; }
+        #next-btn { right: 15px; }
+        
+        /* -------------------------------------- */
+        /* 6. FOOTER                              */
+        /* -------------------------------------- */
+        footer {
+            background: var(--bg-footer);
+            text-align: center;
+            color: #fff;
+            padding: 25px var(--gutter);
+            font-size: 0.95rem;
+            letter-spacing: 0.3px;
+            box-shadow: 0 -3px 10px rgba(0,0,0,0.3);
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <header class="gastro-banner">
+        <h1>Gastronomía de Tutunendo</h1>
+        <p>Una travesía por los platos más icónicos de nuestra tierra Chocoana.</p>
+    </header>
+
+    <section id="gastronomia-tutunendo" class="gastronomia-section">
+        <div class="container">
+            <div class="intro">
+                <h2>Platos Típicos del Chocó</h2>
+                <p>Nuestra cocina está marcada por el río, el mar y la selva. ¡Una explosión de sabor!</p>
+            </div>
+
+            <div class="dishes-grid">
+                
+                <article class="dish-card" data-gallery-index="0">
+                    <div class="thumb">
+                        <img src="https://elrinconcolombiano.com/wp-content/uploads/2022/12/Sancocho-de-Bocachico-receta-colombiana.jpg" alt="Sancocho de Pescado Chocoano" data-full="https://elrinconcolombiano.com/wp-content/uploads/2022/12/Sancocho-de-Bocachico-receta-colombiana.jpg">
+                    </div>
+                    <div class="gallery-thumbs" hidden data-name="Sancocho">
+                        <img src="https://elrinconcolombiano.com/wp-content/uploads/2022/12/Sancocho-de-Bocachico-receta-colombiana.jpg" data-full="https://elrinconcolombiano.com/wp-content/uploads/2022/12/Sancocho-de-Bocachico-receta-colombiana.jpg" alt="Sancocho de Pescado Chocoano con Plátano">
+                        <img src="https://ecommerce.surtifamiliar.com/backend/admin/backend/web/archivosDelCliente/blogs/images/20210116085848-Sancocho.jpg" data-full="https://ecommerce.surtifamiliar.com/backend/admin/backend/web/archivosDelCliente/blogs/images/20210116085848-Sancocho.jpg" alt="Sancocho de carne y verduras">
+                        <img src="https://imag.bonviveur.com/sancocho-colombiano-de-pollo-y-ternera.jpg" data-full="https://imag.bonviveur.com/sancocho-colombiano-de-pollo-y-ternera.jpg" alt="Sancocho Trifásico servido">
+                    </div>
+
+                    <div class="card-body">
+                        <h3>Sancocho</h3>
+                        <p>Un caldo potente y nutritivo, con pescado de río (Bocachico), plátano, yuca y un toque de cimarrón.</p>
+                        <div class="tags">
+                            <span class="tag">Caldo</span>
+                            <span class="tag">Pescado</span>
+                            <span class="tag">Plato fuerte</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="view-gallery-btn">Ver Galería (3 Fotos)</button>
+                            <button class="add-photo-btn" data-dish-name="Sancocho">Añadir Foto</button>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="dish-card" data-gallery-index="1">
+                    <div class="thumb">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrjVl5zsCg4FzPz91Pi9_D1gAPF_Hsf6G0UQ&s" alt="Arroz con Coco blanco y tostado" data-full="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrjVl5zsCg4FzPz91Pi9_D1gAPF_Hsf6G0UQ&s">
+                    </div>
+                    <div class="gallery-thumbs" hidden data-name="Arroz con Leche de Coco">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrjVl5zsCg4FzPz91Pi9_D1gAPF_Hsf6G0UQ&s" data-full="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrjVl5zsCg4FzPz91Pi9_D1gAPF_Hsf6G0UQ&s" alt="Arroz con Coco blanco">
+                        <img src="https://cdn0.recetasgratis.net/es/posts/2/5/5/arroz_con_coco_colombiano_35552_orig.jpg" data-full="https://cdn0.recetasgratis.net/es/posts/2/5/5/arroz_con_coco_colombiano_35552_orig.jpg" alt="Arroz con Coco moreno o titoté">
+                        <img src="https://cdn.colombia.com/gastronomia/2011/08/04/arroz-de-leche-1618.gif" data-full="https://cdn.colombia.com/gastronomia/2011/08/04/arroz-de-leche-1618.gif" alt="Arroz de Leche Postre">
+                    </div> 
+                    
+                    <div class="card-body">
+                        <h3>Arroz con Coco</h3>
+                        <p>Un acompañamiento dulce y aromático, el coco es la estrella de este plato, esencial en la costa Pacífica.</p>
+                        <div class="tags">
+                            <span class="tag">Acompañamiento</span>
+                            <span class="tag">Coco</span>
+                            <span class="tag">Base</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="view-gallery-btn">Ver Galería (3 Fotos)</button>
+                            <button class="add-photo-btn" data-dish-name="Arroz con Leche de Coco">Añadir Foto</button>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="dish-card" data-gallery-index="2">
+                    <div class="thumb">
+                        <img src="https://images.ecency.com/DQmTUdmWQUL6gDDctpbzugsrLVhDfGu3UR4J1b7aiCx1CQj/img_20220725_080731_1.jpg" alt="Pescado Frito" data-full="https://images.ecency.com/DQmTUdmWQUL6gDDctpbzugsrLVhDfGu3UR4J1b7aiCx1CQj/img_20220725_080731_1.jpg">
+                    </div>
+                    <div class="gallery-thumbs" hidden data-name="Pescado Frito">
+                        <img src="https://images.ecency.com/DQmTUdmWQUL6gDDctpbzugsrLVhDfGu3UR4J1b7aiCx1CQj/img_20220725_080731_1.jpg" data-full="https://images.ecency.com/DQmTUdmWQUL6gDDctpbzugsrLVhDfGu3UR4J1b7aiCx1CQj/img_20220725_080731_1.jpg" alt="Atún Frito con arepa y ensalada">
+                        <img src="https://limonymenta.cartadigital.co/wp-content/uploads/2024/05/mojarra-frita-519251.jpg" data-full="https://limonymenta.cartadigital.co/wp-content/uploads/2024/05/mojarra-frita-519251.jpg" alt="Tilapia roja frita con patacones">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRRTCHCeqlJmof4liP2YmZW84rmGMrs62cgZQ&s" data-full="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRRTCHCeqlJmof4liP2YmZW84rmGMrs62cgZQ&s" alt="Mojarra roja Frita con patacones">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGfm8PhG8hJ0EsW5jXdgC_z7bLhHnaHWpbnA&s" data-full="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGfm8PhG8hJ0EsW5jXdgC_z7bLhHnaHWpbnA&s" alt="Pargo rojo">
+                        <img src="https://comedera.com/wp-content/uploads/sites/9/2022/03/Mojarra-frita-shutterstock_1398626060.jpg?w=4096" data-full="https://comedera.com/wp-content/uploads/sites/9/2022/03/Mojarra-frita-shutterstock_1398626060.jpg?w=4096" alt="Mojarra negra frita">
+                    </div>
+
+                    <div class="card-body">
+                        <h3>Pescado Frito</h3>
+                        <p>Pescado de río o mar, frito a la perfección, servido con patacones y otras variedades.</p>
+                        <div class="tags">
+                            <span class="tag">Plato fuerte</span>
+                            <span class="tag">Pescado</span>
+                            <span class="tag">Chilangua</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="view-gallery-btn">Ver Galería (2 Fotos)</button>
+                            <button class="add-photo-btn" data-dish-name="Pescado Frito 'Chilangua'">Añadir Foto</button>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="dish-card" data-gallery-index="3">
+                    <div class="thumb">
+                        <img src="data:image/jpeg;base64,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" alt="Aborrajados de Plátano rellenos de queso" data-full="data:image/jpeg;base64,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">
+                    </div>
+                    <div class="gallery-thumbs" hidden data-name="Aborrajados de Plátano">
+                        <img src="data:image/jpeg;base64,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" data-full="data:image/jpeg;base64,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" alt="Aborrajados de Plátano">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGgAlaAGu8g1CZ9T0xelS2ypSk3hfTOc5Lbw&s" data-full="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGgAlaAGu8g1CZ9T0xelS2ypSk3hfTOc5Lbw&s" alt="Aborrajados de Plátano">
+                        <img src="https://cdn.colombia.com/gastronomia/2011/07/27/aborrajados-1529.jpg" data-full="https://cdn.colombia.com/gastronomia/2011/07/27/aborrajados-1529.jpg" alt="Aborrajados de Plátano">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1owGotXXbNaNFyzM1rjlF5Zebm2s7HyCoYw&s" data-full="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1owGotXXbNaNFyzM1rjlF5Zebm2s7HyCoYw&s" alt="Aborrajados de Plátano">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7YkVCVpTNTOFUeufU0EozKX4SrCjKc7Vh0A&s" data-full="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7YkVCVpTNTOFUeufU0EozKX4SrCjKc7Vh0A&s" alt="Aborrajados de Plátano">
+                    </div>
+
+                    <div class="card-body">
+                        <h3>Aborrajados de Plátano</h3>
+                        <p>Masa de plátano maduro frita, rellena de queso, un bocado dulce y salado, ideal como entrada o acompañamiento.</p>
+                        <div class="tags">
+                            <span class="tag">Entrada</span>
+                            <span class="tag">Plátano</span>
+                            <span class="tag">Queso</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="view-gallery-btn">Ver Foto</button>
+                            <button class="add-photo-btn" data-dish-name="Aborrajados de Plátano">Añadir Foto</button>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="dish-card" data-gallery-index="4">
+                    <div class="thumb">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6jYifZn2B_mOVupNLl_p-uSOJYXJkamCdRg&s" alt="Chontaduros cocidos servidos" data-full="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6jYifZn2B_mOVupNLl_p-uSOJYXJkamCdRg&s">
+                    </div>
+                    <div class="gallery-thumbs" hidden data-name="Chontaduro">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6jYifZn2B_mOVupNLl_p-uSOJYXJkamCdRg&s" data-full="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6jYifZn2B_mOVupNLl_p-uSOJYXJkamCdRg&s" alt="Chontaduro">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiAp_-GvX0LMjjU-uO4cqjpF89l1Elf0ckjg&s" data-full="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiAp_-GvX0LMjjU-uO4cqjpF89l1Elf0ckjg&s" alt="Ceviche de Chontaduro">
+                        <img src="https://uploads.vibra.co/1/2023/02/con-chontaduro-1.jpg" data-full="https://uploads.vibra.co/1/2023/02/con-chontaduro-1.jpg" alt="Chontaduro cocido">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfUorAo43dnpPZ2JQSrawArrsPv7hVMgGsRw&s" data-full="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfUorAo43dnpPZ2JQSrawArrsPv7hVMgGsRw&s" alt="Chontaduro con sal">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyS5b0G8zA6tCG8jcPX0kKF7ruoY1_alU-Fw&s" data-full="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyS5b0G8zA6tCG8jcPX0kKF7ruoY1_alU-Fw&s" alt="Chontaduro con miel">
+                        <img src="https://i.pinimg.com/originals/15/2f/87/152f87560b410e4591082e86f2c0b656.jpg" data-full="https://i.pinimg.com/originals/15/2f/87/152f87560b410e4591082e86f2c0b656.jpg" alt=" Torta de Chontaduro">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTM4QXEl0CiTCcFxw2AS3FiKyVh8rdr6cO9yg&s" data-full="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTM4QXEl0CiTCcFxw2AS3FiKyVh8rdr6cO9yg&s" alt="Jugo de Chontaduro">
+                    </div>
+
+                    <div class="card-body">
+                        <h3>Chontaduro</h3>
+                        <p>Una fruta tropical autóctona de la región Pacífica, consumida cocida y con sal y otras combinaciones. Un manjar altamente nutritivo.</p>
+                        <div class="tags">
+                            <span class="tag">Fruta</span>
+                            <span class="tag">Snack</span>
+                            <span class="tag">Natural</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="view-gallery-btn">Ver Galería (2 Fotos)</button>
+                            <button class="add-photo-btn" data-dish-name="Chontaduro con Sal">Añadir Foto</button>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="dish-card" data-gallery-index="5">
+                    <div class="thumb">
+                        <img src="https://cdn.shopify.com/s/files/1/0271/8960/8525/files/Consumo_y_conservacion_del_jugo_de_borojo.jpg?v=1737479465" alt="Jugo de Borojó servido en vaso" data-full="https://cdn.shopify.com/s/files/1/0271/8960/8525/files/Consumo_y_conservacion_del_jugo_de_borojo.jpg?v=1737479465">
+                    </div>
+                    <div class="gallery-thumbs" hidden data-name="Jugos">
+                        <img src="https://cdn.shopify.com/s/files/1/0271/8960/8525/files/Consumo_y_conservacion_del_jugo_de_borojo.jpg?v=1737479465" data-full="https://cdn.shopify.com/s/files/1/0271/8960/8525/files/Consumo_y_conservacion_del_jugo_de_borojo.jpg?v=1737479465" alt="Jugo de Borojó">
+                        <img src="https://pbs.twimg.com/media/DKMasCpW0AEbGsK?format=jpg&name=4096x4096" data-full="https://pbs.twimg.com/media/DKMasCpW0AEbGsK?format=jpg&name=4096x4096" alt="Jugo de Chontaduro">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGEHvOCEp62gv9YmQ2C5oXKbbPfOSLtg2wTQ&s" data-full="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGEHvOCEp62gv9YmQ2C5oXKbbPfOSLtg2wTQ&s" alt="Salpicón de Baudilia">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQap_GoaGbCWbqeKS8Et4CmRgQ67wgE5dy0dA&s" data-full="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQap_GoaGbCWbqeKS8Et4CmRgQ67wgE5dy0dA&s" alt="Curao">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSzTEWJwXoFyaa3M_UBJdSJG0WKxbrtYTjB8g&s" data-full="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSzTEWJwXoFyaa3M_UBJdSJG0WKxbrtYTjB8g&s" alt="Lulo Chocoano">
+                    </div>
+
+                    <div class="card-body">
+                        <h3>Jugos</h3>
+                        <p>Bebidas espesas y energizantes, hecha con la pulpa de la frutas, conocidas por sus propiedades nutricionales.</p>
+                        <div class="tags">
+                            <span class="tag">Bebida</span>
+                            <span class="tag">Energía</span>
+                            <span class="tag">Fruta</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="view-gallery-btn">Ver Foto</button>
+                            <button class="add-photo-btn" data-dish-name="Jugo de Borojó">Añadir Foto</button>
+                        </div>
+                    </div>
+                </article>
+                
+            </div>
+            
+            <div class="load-more-container">
+                <button class="load-more-btn" id="load-more-btn">Ver Más Platos</button>
+            </div>
+        </div>
+    </section>
+    
+    <div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <strong id="modal-title">Foto del Plato</strong>
+                <button id="modal-close" class="modal-close" aria-label="Cerrar Galería">✕</button>
+            </div>
+            <div class="modal-body">
+                <img id="modal-img" src="" alt="Imagen ampliada de plato típico de Tutunendo">
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        🍽️ Tutunendo Chocó &copy; 2025 | Sabores y Tradición del Pacífico Colombiano.
+    </footer>
+
+<script>
+    (function(){
+        'use strict'; // Modo estricto para mejor manejo de errores
+
+        // --- SELECCIÓN DE ELEMENTOS DEL DOM ---
+        const modal = document.getElementById('modal');
+        const modalImg = document.getElementById('modal-img');
+        const modalTitle = document.getElementById('modal-title');
+        const closeBtn = document.getElementById('modal-close');
+        const dishCards = document.querySelectorAll('.dish-card');
+        const addPhotoBtns = document.querySelectorAll('.add-photo-btn');
+        const modalBody = modal.querySelector('.modal-body');
+
+        // --- GESTIÓN DEL ESTADO DE LA GALERÍA ---
+        const state = {
+            galleries: [],
+            currentGallery: [],
+            currentIndex: 0,
+            currentItemName: ''
+        };
+
+        // --- 1. CREACIÓN DE BOTONES DE NAVEGACIÓN (Control del Carrusel) ---
+        const nextBtn = document.createElement('button');
+        const prevBtn = document.createElement('button');
+        nextBtn.id = 'next-btn';
+        prevBtn.id = 'prev-btn';
+        nextBtn.textContent = '▶';
+        prevBtn.textContent = '◀';
+        nextBtn.classList.add('modal-nav-btn');
+        prevBtn.classList.add('modal-nav-btn');
+        
+        // Se añaden los botones al modal body
+        modalBody.append(prevBtn, nextBtn);
+        
+        // --- 2. RECOLECTAR Y PROCESAR TODAS LAS GALERÍAS ---
+        dishCards.forEach(card => {
+            const thumbContainer = card.querySelector('.gallery-thumbs');
+            let images = [];
+            let itemName = '';
+            
+            if (thumbContainer) {
+                // Caso 1: Hay un contenedor de galería con varias imágenes
+                itemName = thumbContainer.dataset.name.trim();
+                const thumbImages = Array.from(thumbContainer.querySelectorAll('img'));
+                images = thumbImages.map(img => ({
+                    full: img.dataset.full || img.src,
+                    alt: img.alt || itemName || 'Foto Tutunendo'
+                }));
+            } else {
+                // Caso 2: Solo se usa la imagen principal de la tarjeta (una sola foto)
+                const img = card.querySelector('.thumb img');
+                itemName = card.querySelector('h3').textContent.trim();
+                images = [{
+                    full: img.dataset.full || img.src,
+                    alt: img.alt || itemName || 'Foto Tutunendo'
+                }];
+            }
+
+            state.galleries.push({
+                name: itemName,
+                images: images
+            });
+            
+            // Configurar el texto y evento del botón de galería
+            const galleryBtn = card.querySelector('.view-gallery-btn');
+            const photoCount = images.length;
+            galleryBtn.textContent = (photoCount > 1) ? `Ver Galería (${photoCount} Fotos)` : "Ver Foto"; 
+            
+            // Usamos el índice actual de la galería que se está procesando
+            const galleryIndex = state.galleries.length - 1; 
+
+            galleryBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); 
+                openGallery(galleryIndex, 0); 
+            });
+
+            // Evento para el clic en la imagen principal
+            const mainThumb = card.querySelector('.thumb img');
+            mainThumb.addEventListener('click', () => {
+                openGallery(galleryIndex, 0); 
+            });
+        });
+
+        // --- 3. FUNCIONES PRINCIPALES DEL MODAL (LIGHTBOX) ---
+
+        /** Muestra una imagen específica de la galería actual */
+        function updateModalContent(){
+            const item = state.currentGallery[state.currentIndex];
+            modalImg.src = item.full;
+            modalImg.alt = item.alt;
+            
+            // Título: Descripción de la foto | Posición
+            modalTitle.textContent = `${item.alt} | ${state.currentIndex + 1} de ${state.currentGallery.length}`;
+            
+            // Oculta/Muestra botones de navegación si hay una sola imagen
+            const isSingleImage = state.currentGallery.length <= 1;
+            nextBtn.style.display = isSingleImage ? 'none' : 'block';
+            prevBtn.style.display = isSingleImage ? 'none' : 'block';
+        }
+
+        /** Carga una galería y abre el modal */
+        function openGallery(galleryIndex, imageIndex){
+            const galleryData = state.galleries[galleryIndex];
+            state.currentGallery = galleryData.images;
+            state.currentItemName = galleryData.name;
+            state.currentIndex = imageIndex;
+            
+            updateModalContent();
+            
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden','false');
+            // Mover el foco al botón de cerrar para accesibilidad (navegación por teclado)
+            closeBtn.focus(); 
+        }
+
+        /** Navega a la imagen siguiente o anterior */
+        function navigate(direction){
+            const len = state.currentGallery.length;
+            if (len <= 1) return;
+
+            let newIndex = state.currentIndex + direction;
+            // Manejo de índices circular
+            state.currentIndex = (newIndex + len) % len;
+            
+            updateModalContent();
+        }
+
+        /** Cierra el modal */
+        function closeModal(){
+            modal.classList.remove('open');
+            modal.setAttribute('aria-hidden','true');
+            // Limpiar la imagen para ahorrar recursos
+            modalImg.src = '';
+        }
+
+        // --- 4. EVENT LISTENERS ---
+
+        // Botones de navegación del modal
+        nextBtn.addEventListener('click', () => navigate(1));
+        prevBtn.addEventListener('click', () => navigate(-1));
+        
+        // Botón Cerrar
+        closeBtn.addEventListener('click', closeModal);
+        
+        // Cierre al hacer clic fuera del contenido del modal
+        modal.addEventListener('click', e => { 
+            if(e.target === modal) closeModal(); 
+        });
+
+        // Eventos de teclado (Escape, Flechas)
+        window.addEventListener('keydown', e => {
+            if(modal.classList.contains('open')){
+                if(e.key === 'Escape') closeModal();
+                if(e.key === 'ArrowRight') navigate(1);
+                if(e.key === 'ArrowLeft') navigate(-1);
+            }
+        });
+
+        // Botones de Añadir Foto (Funcionalidad simulada)
+        addPhotoBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const dishName = btn.dataset.dishName;
+                alert(`Función simulada: Se abriría un diálogo para subir una foto para el plato: "${dishName}".`);
+            });
+        });
+
+    })();
+</script>
+</body>
+</html>
